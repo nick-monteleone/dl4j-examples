@@ -9,6 +9,7 @@ import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreproc
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
 import org.deeplearning4j.ui.UiServer;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +24,7 @@ public class Word2VecRawTextExample {
 
     public static void main(String[] args) throws Exception {
 
-        String filePath = new ClassPathResource("raw_sentences.txt").getFile().getAbsolutePath();
+        String filePath = new ClassPathResource("test.txt").getFile().getAbsolutePath();
 
         log.info("Load & Vectorize Sentences....");
         // Strip white space before and after for each line
@@ -34,9 +35,10 @@ public class Word2VecRawTextExample {
 
         log.info("Building model....");
         Word2Vec vec = new Word2Vec.Builder()
-                .minWordFrequency(5)
-                .iterations(1)
-                .layerSize(100)
+                .epochs(12)
+                .minWordFrequency(3)
+                .iterations(10)
+                .layerSize(200)
                 .seed(42)
                 .windowSize(5)
                 .iterate(iter)
@@ -51,10 +53,16 @@ public class Word2VecRawTextExample {
         // Write word vectors
         WordVectorSerializer.writeWordVectors(vec, "pathToWriteto.txt");
 
-        log.info("Closest Words:");
-        Collection<String> lst = vec.wordsNearest("day", 10);
-        System.out.println(lst);
-        UiServer server = UiServer.getInstance();
-        System.out.println("Started on port " + server.getPort());
+        //System.out.println("cash: " + vec.wordsNearest("cash", 5));
+        //System.out.println("petty_cash: " + vec.wordsNearest("petty_cash", 5));
+        //System.out.println("cash_equivalents: " + vec.wordsNearest("cash_equivalents", 5));
+
+        for (String word : vec.vocab().words())
+        {
+            if(word.contains("cash"))
+                System.out.println(word + ": " + vec.wordsNearest(word, 5));
+        }
+        //UiServer server = UiServer.getInstance();
+        //System.out.println("Started on port " + server.getPort());
     }
 }
